@@ -39,6 +39,9 @@ jobs:
       - name: Generate APP_KEY
         run: php artisan key:generate
 
+      - name: Create required directories
+        run: mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
+
       - name: Directory permissions
         run: chmod -R 777 storage bootstrap/cache
 

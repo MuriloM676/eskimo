@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: pdv_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www
+    depends_on:
+      - app
+    networks:
+      - pdv_network
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pdv_app
+    volumes:
+      - ./backend:/var/www
+    working_dir: /var/www
+    depends_on:
+      - db
+      - redis
+    networks:
+      - pdv_network
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pdv_queue
+    volumes:
+      - ./backend:/var/www
+    working_dir: /var/www
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--max-time=3600"]
+    restart: unless-stopped
+    depends_on:
+      - app
+      - redis
+    networks:
+      - pdv_network
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pdv_scheduler
+    volumes:
+      - ./backend:/var/www
+    working_dir: /var/www
+    command: ["php", "artisan", "schedule:work"]
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - pdv_network
+
+  db:
+    image: postgres:16
+    container_name: pdv_db
+    restart: always
+    environment:
+      POSTGRES_DB: pdv
+      POSTGRES_USER: pdv
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - pdv_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: pdv_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pdv_network
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: pdv_mailpit
+    ports:
+      - "8025:8025"
+    networks:
+      - pdv_network
+
+  adminer:
+    image: adminer
+    container_name: pdv_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - pdv_network
+
+networks:
+  pdv_network:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:

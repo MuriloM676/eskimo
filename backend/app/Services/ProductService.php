@@ -37,13 +37,15 @@ class ProductService
             $data['cost_price'] = $this->toCents($data['cost_price']);
         }
 
+        $initialStock = (int) ($data['stock_quantity'] ?? 0);
+        $data['stock_quantity'] = 0;
         $product = Product::create($data);
 
-        if (($data['stock_quantity'] ?? 0) > 0) {
+        if ($initialStock > 0) {
             $this->stockService->registerMovement(
                 product: $product,
                 type: MovementType::IN,
-                quantity: (int) $data['stock_quantity'],
+                quantity: $initialStock,
                 reason: 'Estoque inicial',
                 userId: auth()->id()
             );

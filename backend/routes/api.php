@@ -50,14 +50,16 @@ Route::prefix('v1')->group(function () {
 
         // Sales (PDV)
         Route::prefix('sales')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
             Route::post('start', [\App\Http\Controllers\Sale\SaleController::class, 'start']);
             Route::post('add-item', [\App\Http\Controllers\Sale\SaleController::class, 'addItem']);
-            Route::post('remove-item', [\App\Http\Controllers\Sale\SaleController::class, 'removeItem']);
-            Route::post('apply-discount', [\App\Http\Controllers\Sale\SaleController::class, 'applyDiscount']);
-            Route::post('pay', [\App\Http\Controllers\Sale\SaleController::class, 'pay']);
-            Route::post('cancel', [\App\Http\Controllers\Sale\SaleController::class, 'cancel']);
+
+            // Routes with sale binding (must come after static routes)
+            Route::post('{sale}/remove-item', [\App\Http\Controllers\Sale\SaleController::class, 'removeItem']);
+            Route::post('{sale}/apply-discount', [\App\Http\Controllers\Sale\SaleController::class, 'applyDiscount']);
+            Route::post('{sale}/pay', [\App\Http\Controllers\Sale\SaleController::class, 'pay']);
+            Route::post('{sale}/cancel', [\App\Http\Controllers\Sale\SaleController::class, 'cancel']);
             Route::get('{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'show']);
-            Route::get('/', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
         });
 
         // Payments

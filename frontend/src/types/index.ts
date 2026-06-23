@@ -30,16 +30,16 @@ export interface Category {
 export interface Product {
   id: number
   name: string
-  description: string
+  description: string | null
   barcode: string
   price: number
-  cost_price: number
-  category_id: number
-  category: Category
+  cost_price: number | null
+  category_id: number | null
+  category: Category | null
   stock_quantity: number
   min_stock: number
   active: boolean
-  image_url: string
+  image_url: string | null
 }
 
 export interface Sale {

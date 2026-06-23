@@ -13,10 +13,11 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader
+RUN chmod +x /usr/local/bin/docker-entrypoint
 
 EXPOSE 9000
 
-CMD ["php-fpm"]
+ENTRYPOINT ["docker-entrypoint"]

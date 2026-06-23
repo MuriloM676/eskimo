@@ -7,7 +7,7 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: false,
 })
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
